@@ -1,67 +1,106 @@
-#include <iostream>
-using namespace std;
-int Fun(long int,int);
-int main() {
-  long int number;
-  cout <<"請輸入你的信用卡卡號";
-  cin >> number;
-  int last = number % 10;
-  int c = 0;
-  long int num1 = number;
-
-  int NumD = Fun(num1,13);
-  int NumE = Fun(num1,14);
-  int NumF = Fun(num1,9);
-  int NumG = Fun(num1,11);
-
-
-  if (number != 0) 
-  {
-    for(int i = 1; i <= 15; i++) 
-    {
-      if (i%2==1) 
-      {
-        number = number / 10;
-        int a = number % 10;
-        a = a*2;
-      if (a>=10) a = a/10 + a%10;
-      c = a + c;
-      } else 
-      {
-        number = number / 10;
-        int b = number % 10;
-        c = c + b;
-      }
-    } 
-    c =10-c%10;
-    if (c==10) c = 0;
-  
-    if (last==c) 
-    {
-      cout <<"是正確卡號\n";
-      if (NumE==4)
-        cout <<"Visa Card.\n";
-      else if (NumG==4)
-        cout <<"Visa Card\n";
-      else if (NumD >= 51 && NumD <= 55)
-        cout <<"Master Card\n";
-      else if (NumF >= 222100 && NumF <= 272099)
-        cout <<"Master Card\n";
-      else 
-        cout <<"其他卡\n";
-    } else 
-    {
-      cout <<"不是正確卡號\n";
+#include <stdio.h>
+#include <cs50.h>
+#include <math.h>
+int main(void) {
+    // Global variables
+    int count = 0;
+    long cc; 
+    long ccNUM;
+    string card;
+    // Prompt user
+    do {
+        cc = get_long("Enter credit card number: "); 
+    } while (cc < 0);
+    ccNUM = cc;
+    // Count cc length
+    while (cc > 0) {
+        cc = cc / 10;
+        count++;
     }
-  }
-}
-
-
-int Fun(long int num,int loopCnt)
-{
-  for(int h = 0; h <= loopCnt; h++) 
-  {
-  num = num / 10;
-  }
-  return num;
-}
+    // Check if cc num length is valid
+    if (count != 13 && count != 15 && count != 16) {
+        printf("INVALID");
+    } 
+    // Luhn's Algorithm
+    // Looping variables for computation
+    long digit;
+    int oneD;
+    int twoD;
+    int checker;
+    int multi;
+    int sum1 = 0;
+    int sum2 = 0;
+    int result;
+    // Iterate 1 through length of CC
+    for (int i = 0; i < count; i++) {
+        // Create factor 
+        long factor = pow(10, i);
+        // Formulate first set of digits (2nd from last)
+        if (i % 2 != 0 && count == 16) {
+            digit = (ccNUM / factor) % 10;
+            multi = digit * 2;
+            if (multi > 9) {
+               int num1 = multi%10;
+               int num2 = multi/10;
+               multi = num1 + num2;
+            }
+            sum1 += multi;
+            if (i == count-1) {
+                oneD = digit;
+            }
+        }
+        else if (i % 2 != 0 && (count == 13 || count == 15)) {
+            digit = (ccNUM / factor) % 10;
+            multi = digit * 2;
+            if (multi > 9) {
+               int num1 = multi%10;
+               int num2 = multi/10;
+               multi = num1 + num2;
+            }
+            sum1 += multi;
+            if (i == count-2) {
+                twoD = digit;
+            }
+        }
+        
+        // Formulate second set of digits (First from last)
+        if (i % 2 == 0 && count == 16) {
+            digit = (ccNUM / factor) % 10;
+            sum2 += digit;
+            if (i==count-2) {
+                twoD = digit;
+            }
+        }
+        else if (i % 2 == 0 && (count == 13 || count == 15)) {
+            digit = (ccNUM / factor) % 10;
+            sum2 += digit;
+            if (i==count-1) {
+                oneD = digit;
+            }
+        }
+        checker = oneD + twoD;
+    }
+    // Define which card type
+    if (count == 16 && digit == 4) {
+        card = "VISA";
+    }
+    else if ((count == 13 || count == 16) && (checker >= 6 && checker <= 10)) {
+        card = "MASTERCARD";
+    }
+    else if (count == 15 && (checker == 7 || checker == 10)) {
+        card = "AMEX";
+    }
+    else {
+        card = "INVALID";
+    }
+     
+    result = sum1 + sum2;
+    // Final verification
+    if (result % 10 == 0) {
+         printf("%s\n", card);
+     }
+     else {
+         printf("INVALID\n");
+         printf("INVALID\n");                 //*******MADE BY prajeshy**********
+     }
+ }
